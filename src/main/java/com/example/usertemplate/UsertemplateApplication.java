@@ -9,5 +9,4 @@ public class UsertemplateApplication {
   public static void main(String[] args) {
     SpringApplication.run(UsertemplateApplication.class, args);
   }
-
 }
