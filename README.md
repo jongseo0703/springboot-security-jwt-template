@@ -70,6 +70,8 @@ JWT + Redis를 활용한 일반 로그인 기능과 Swagger를 통한 API 테스
 
     # JWT
     jwt.secret=your-super-strong-jwt-secret-key-that-is-at-least-256-bits-long
+    jwt.expiration=86400000 # Access Token 만료 시간 (ms단위, 기본값: 1일)
+    jwt.refresh-expiration=604800000 # Refresh Token 만료 시간 (ms단위, 기본값: 7일)
     ```
 
 3.  **애플리케이션 실행:**
