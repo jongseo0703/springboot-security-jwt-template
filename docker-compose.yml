@@ -1,0 +1,37 @@
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: usertemplate-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: usertemplate_dev
+      MYSQL_USER: mysql
+      MYSQL_PASSWORD: password
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - usertemplate-network
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: usertemplate-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - usertemplate-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:
+
+networks:
+  usertemplate-network:
+    driver: bridge
