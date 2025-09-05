@@ -39,6 +39,8 @@ dependencies {
 
     // Swagger/OpenAPI - UI 포함 통합 의존성
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.0'
+    // commons-lang3 CVE-2025-48924 취약점 해결을 위해 버전을 3.18.0으로 명시
+    implementation 'org.apache.commons:commons-lang3:3.18.0'
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
