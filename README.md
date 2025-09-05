@@ -19,75 +19,73 @@ JWT + Redis를 활용한 일반 로그인 기능과 Swagger를 통한 API 테스
 ---
 
 ## 📦 프로젝트 구조
-├── build.gradle                                                                                                                                            │
- │    10 ├── gradlew                                                                                                                                                 │
- │    11 ├── settings.gradle                                                                                                                                         │
- │    12 ├── src                                                                                                                                                     │
- │    13 │   ├── main                                                                                                                                                │
- │    14 │   │   ├── java                                                                                                                                            │
- │    15 │   │   │   └── com                                                                                                                                         │
- │    16 │   │   │       └── example                                                                                                                                 │
- │    17 │   │   │           └── usertemplate                                                                                                                        │
- │    18 │   │   │               ├── UsertemplateApplication.java # Spring Boot main application class                                                               │
- │    19 │   │   │               ├── auth                                                                                                                            │
- │    20 │   │   │               │   ├── controller                                                                                                                  │
- │    21 │   │   │               │   │   └── AuthController.java      # Controller for authentication APIs (login, register)                                         │
- │    22 │   │   │               │   ├── dto                                                                                                                         │
- │    23 │   │   │               │   │   ├── LoginRequest.java                                                                                                       │
- │    24 │   │   │               │   │   ├── LoginResponse.java                                                                                                      │
- │    25 │   │   │               │   │   └── RegisterRequest.java                                                                                                    │
- │    26 │   │   │               │   ├── security                                                                                                                    │
- │    27 │   │   │               │   │   ├── JwtAccessDeniedHandler.java                                                                                             │
- │    28 │   │   │               │   │   ├── JwtAuthenticationEntryPoint.java                                                                                        │
- │    29 │   │   │               │   │   ├── JwtAuthenticationFilter.java                                                                                            │
- │    30 │   │   │               │   │   └── JwtTokenProvider.java    # JWT token generation and validation                                                          │
- │    31 │   │   │               │   └── service                                                                                                                     │
- │    32 │   │   │               │       ├── AuthService.java                                                                                                        │
- │    33 │   │   │               │       └── AuthServiceImpl.java     # Business logic for authentication                                                            │
- │    34 │   │   │               ├── global                                                                                                                          │
- │    35 │   │   │               │   ├── common                                                                                                                      │
- │    36 │   │   │               │   │   ├── ApiResponse.java       # Standard API response format                                                                   │
- │    37 │   │   │               │   │   └── BaseEntity.java        # Base entity with created/updated dates                                                         │
- │    38 │   │   │               │   ├── config                                                                                                                      │
- │    39 │   │   │               │   │   ├── JpaConfig.java                                                                                                          │
- │    40 │   │   │               │   │   ├── OpenApiConfig.java     # Swagger/OpenAPI configuration                                                                  │
- │    41 │   │   │               │   │   └── SecurityConfig.java    # Spring Security configuration                                                                  │
- │    42 │   │   │               │   ├── exception                                                                                                                   │
- │    43 │   │   │               │   │   ├── BusinessException.java                                                                                                  │
- │    44 │   │   │               │   │   ├── ErrorResponse.java                                                                                                      │
- │    45 │   │   │               │   │   └── GlobalExceptionHandler.java # Global exception handling                                                                 │
- │    46 │   │   │               │   └── redis                                                                                                                       │
- │    47 │   │   │               │       ├── Redis.java                                                                                                              │
- │    48 │   │   │               │       ├── RedisConfig.java                                                                                                        │
- │    49 │   │   │               │       ├── RedisProperties.java                                                                                                    │
- │    50 │   │   │               │       └── RedisUtil.java         # Redis utility class                                                                            │
- │    51 │   │   │               └── user                                                                                                                            │
- │    52 │   │   │                   ├── dto                                                                                                                         │
- │    53 │   │   │                   │   ├── UserResponse.java                                                                                                       │
- │    54 │   │   │                   │   └── UserUpdateRequest.java                                                                                                  │
- │    55 │   │   │                   ├── entity                                                                                                                      │
- │    56 │   │   │                   │   ├── Role.java                                                                                                               │
- │    57 │   │   │                   │   └── User.java              # User entity                                                                                    │
- │    58 │   │   │                   ├── repository                                                                                                                  │
- │    59 │   │   │                   │   └── UserRepository.java    # JPA repository for User                                                                        │
- │    60 │   │   │                   └── service                                                                                                                     │
- │    61 │   │   │                       ├── UserService.java                                                                                                        │
- │    62 │   │   │                       └── UserServiceImpl.java   # Business logic for user operations                                                             │
- │    63 │   │   └── resources                                                                                                                                       │
- │    64 │   │       ├── application.properties                     # Application configuration                                                                      │
- │    65 │   │       ├── static                                                                                                                                      │
- │    66 │   │       └── templates                                                                                                                                   │
- │    67 │   └── test                                                                                                                                                │
- │    68 │       └── java                                                                                                                                            │
- │    69 │           └── com                                                                                                                                         │
- │    70 │               └── example                                                                                                                                 │
- │    71 │                   └── usertemplate                                                                                                                        │
- │    72 │                       └── UsertemplateApplicationTests.java                                                                                               │
- │    73 └── .github                                                                                                                                                 │
- │    74     ├── Branch&GitConvention.md                                                                                                                             │
- │    75     └── pull_request_template.md
-
----
+├── build.gradle
+├── gradlew
+├── settings.gradle
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── com
+│   │   │       └── example
+│   │   │           └── usertemplate
+│   │   │               ├── UsertemplateApplication.java # Spring Boot main application class
+│   │   │               ├── auth
+│   │   │               │   ├── controller
+│   │   │               │   │   └── AuthController.java      # Controller for authentication APIs (login, register)
+│   │   │               │   ├── dto
+│   │   │               │   │   ├── LoginRequest.java
+│   │   │               │   │   ├── LoginResponse.java
+│   │   │               │   │   └── RegisterRequest.java
+│   │   │               │   ├── security
+│   │   │               │   │   ├── JwtAccessDeniedHandler.java
+│   │   │               │   │   ├── JwtAuthenticationEntryPoint.java
+│   │   │               │   │   ├── JwtAuthenticationFilter.java
+│   │   │               │   │   └── JwtTokenProvider.java    # JWT token generation and validation
+│   │   │               │   └── service
+│   │   │               │       ├── AuthService.java
+│   │   │               │       └── AuthServiceImpl.java     # Business logic for authentication
+│   │   │               ├── global
+│   │   │               │   ├── common
+│   │   │               │   │   ├── ApiResponse.java       # Standard API response format
+│   │   │               │   │   └── BaseEntity.java        # Base entity with created/updated dates
+│   │   │               │   ├── config
+│   │   │               │   │   ├── JpaConfig.java
+│   │   │               │   │   ├── OpenApiConfig.java     # Swagger/OpenAPI configuration
+│   │   │               │   │   └── SecurityConfig.java    # Spring Security configuration
+│   │   │               │   ├── exception
+│   │   │               │   │   ├── BusinessException.java
+│   │   │               │   │   ├── ErrorResponse.java
+│   │   │               │   │   └── GlobalExceptionHandler.java # Global exception handling
+│   │   │               │   └── redis
+│   │   │               │       ├── Redis.java
+│   │   │               │       ├── RedisConfig.java
+│   │   │               │       ├── RedisProperties.java
+│   │   │               │       └── RedisUtil.java         # Redis utility class
+│   │   │               └── user
+│   │   │                   ├── dto
+│   │   │                   │   ├── UserResponse.java
+│   │   │                   │   └── UserUpdateRequest.java
+│   │   │                   ├── entity
+│   │   │                   │   ├── Role.java
+│   │   │                   │   └── User.java              # User entity
+│   │   │                   ├── repository
+│   │   │                   │   └── UserRepository.java    # JPA repository for User
+│   │   │                   └── service
+│   │   │                       ├── UserService.java
+│   │   │                       └── UserServiceImpl.java   # Business logic for user operations
+│   │   └── resources
+│   │       ├── application.properties                     # Application configuration
+│   │       ├── static
+│   │       └── templates
+│   └── test
+│       └── java
+│           └── com
+│               └── example
+│                   └── usertemplate
+│                       └── UsertemplateApplicationTests.java
+└── .github
+    ├── Branch&GitConvention.md
+    └── pull_request_template.md
 
 ## 기능
 
