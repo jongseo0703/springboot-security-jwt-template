@@ -19,11 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * JWT 접근 거부 핸들러임.
  *
- * - Spring Security에서 사용자가 권한이 없는 리소스에 접근할 때 호출됨.
- * - JSON 형식으로 오류 응답 반환
- * - HTTP 상태 코드: 403 FORBIDDEN
+ * <p>- Spring Security에서 사용자가 권한이 없는 리소스에 접근할 때 호출됨. - JSON 형식으로 오류 응답 반환 - HTTP 상태 코드: 403
+ * FORBIDDEN
  */
-
 @Slf4j
 @Component
 @RequiredArgsConstructor

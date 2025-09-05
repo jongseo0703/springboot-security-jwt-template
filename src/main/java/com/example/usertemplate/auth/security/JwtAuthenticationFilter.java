@@ -24,18 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * JWT 인증 필터임.
  *
- * - 요청마다 한 번 실행
- * - Authorization 헤더에서 JWT를 추출하고 유효성을 검사
- * - 유효한 토큰이면 SecurityContext에 인증 정보 설정
+ * <p>- 요청마다 한 번 실행 - Authorization 헤더에서 JWT를 추출하고 유효성을 검사 - 유효한 토큰이면 SecurityContext에 인증 정보 설정
  *
- * 사용 흐름:
- * 1. 요청 헤더에서 JWT 추출
- * 2. 토큰 유효성 검사
- * 3. 토큰에서 사용자 ID 추출
- * 4. DB에서 사용자 정보 조회
- * 5. Spring Security Authentication 객체 생성 및 SecurityContext에 설정
+ * <p>사용 흐름: 1. 요청 헤더에서 JWT 추출 2. 토큰 유효성 검사 3. 토큰에서 사용자 ID 추출 4. DB에서 사용자 정보 조회 5. Spring Security
+ * Authentication 객체 생성 및 SecurityContext에 설정
  */
-
 @Slf4j
 @Component
 @RequiredArgsConstructor

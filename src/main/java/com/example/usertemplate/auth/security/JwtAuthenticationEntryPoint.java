@@ -19,11 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * JWT 인증 진입점임.
  *
- * - Spring Security에서 인증이 필요한 리소스에 인증되지 않은 사용자가 접근했을 때 호출됨
- * - JSON 형식으로 오류 응답 반환
- * - HTTP 상태 코드: 401 UNAUTHORIZED
+ * <p>- Spring Security에서 인증이 필요한 리소스에 인증되지 않은 사용자가 접근했을 때 호출됨 - JSON 형식으로 오류 응답 반환 - HTTP 상태 코드:
+ * 401 UNAUTHORIZED
  */
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
