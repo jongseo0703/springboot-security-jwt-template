@@ -2,6 +2,7 @@ package com.example.usertemplate.auth.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,48 +69,25 @@ public class AuthServiceImpl implements AuthService {
   public LoginResponse login(LoginRequest request) {
     log.info("Attempting login for username: {}", request.username());
 
-    // 1. 사용자 조회
-    User user =
-        userRepository
-            .findByUsername(request.username())
-            .orElseThrow(
-                () -> {
-                  log.error("사용자를 찾을 수 없음: {}", request.username());
-                  return new BusinessException(
-                      "Invalid username or password", 401, "AUTHENTICATION_FAILED");
-                });
+    // 1. AuthenticationManager를 통한 인증
+    Authentication authentication =
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(request.username(), request.password()));
 
-    log.debug("사용자 조회 성공 - username: {}, id: {}", user.getUsername(), user.getId());
+    log.debug("Authentication successful for user: {}", request.username());
 
-    // 2. 비밀번호 검증
-    boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPassword());
-    log.debug(
-        "입력 비밀번호: {}, DB 해시: {}", request.password(), user.getPassword().substring(0, 20) + "...");
-
-    if (!passwordMatches) {
-      log.error("비밀번호 불일치 for user: {}", request.username());
-      throw new BusinessException("Invalid username or password", 401, "AUTHENTICATION_FAILED");
-    }
-
-    log.debug("비밀번호 검증 성공");
+    // 2. 인증된 정보에서 User 객체 가져오기
+    User user = (User) authentication.getPrincipal();
 
     // 3. JWT 토큰 생성
-    try {
-      UsernamePasswordAuthenticationToken authentication =
-          new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+    String accessToken = jwtTokenProvider.generateAccessToken(authentication);
+    String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
-      String accessToken = jwtTokenProvider.generateAccessToken(authentication);
-      String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUsername());
+    log.info("Tokens generated for user: {}", user.getUsername());
 
-      log.info("Login successful for user: {}", user.getUsername());
+    // 4. Refresh Token을 Redis에 저장
+    refreshTokenService.saveTokenInfo(user.getEmail(), refreshToken, accessToken);
 
-      refreshTokenService.saveTokenInfo(user.getEmail(), refreshToken, accessToken);
-
-      return LoginResponse.of(accessToken, refreshToken);
-
-    } catch (Exception ex) { // JWT 생성 관련 예외만 처리
-      log.error("JWT 생성 실패 for user: {}", user.getUsername(), ex);
-      throw new BusinessException("Token generation failed", 500, "TOKEN_ERROR");
-    }
+    return LoginResponse.of(accessToken, refreshToken);
   }
 }
