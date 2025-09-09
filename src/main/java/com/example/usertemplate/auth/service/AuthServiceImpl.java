@@ -11,7 +11,7 @@ import com.example.usertemplate.auth.dto.LoginResponse;
 import com.example.usertemplate.auth.dto.RegisterRequest;
 import com.example.usertemplate.auth.security.JwtTokenProvider;
 import com.example.usertemplate.global.exception.BusinessException;
-import com.example.usertemplate.global.redis.RedisUtil;
+import com.example.usertemplate.global.redis.RefreshTokenService;
 import com.example.usertemplate.user.dto.UserResponse;
 import com.example.usertemplate.user.entity.Role;
 import com.example.usertemplate.user.entity.User;
@@ -29,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
   private final PasswordEncoder passwordEncoder;
   private final AuthenticationManager authenticationManager;
   private final JwtTokenProvider jwtTokenProvider;
-  private final RedisUtil redisUtil;
+  private final RefreshTokenService refreshTokenService;
 
   @Override
   @Transactional
@@ -103,7 +103,7 @@ public class AuthServiceImpl implements AuthService {
 
       log.info("Login successful for user: {}", user.getUsername());
 
-      redisUtil.setDataExpire(user.getEmail(), refreshToken, 60 * 60 * 24 * 14);
+      refreshTokenService.saveTokenInfo(user.getEmail(), refreshToken, accessToken);
 
       return LoginResponse.of(accessToken, refreshToken);
 
