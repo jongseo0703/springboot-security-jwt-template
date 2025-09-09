@@ -6,8 +6,9 @@ import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import com.example.usertemplate.user.entity.User;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -46,10 +47,10 @@ public class JwtTokenProvider {
 
   // Access Token 생성
   public String generateAccessToken(Authentication authentication) {
-    UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+    User userPrincipal = (User) authentication.getPrincipal();
     Date expiryDate = new Date(System.currentTimeMillis() + jwtExpiration);
 
-    String userId = userPrincipal.getUsername();
+    String userId = String.valueOf(userPrincipal.getId());
 
     return Jwts.builder()
         .subject(userId)
@@ -60,11 +61,11 @@ public class JwtTokenProvider {
   }
 
   // Refresh Token 생성
-  public String generateRefreshToken(String userId) {
+  public String generateRefreshToken(Long userId) {
     Date expiryDate = new Date(System.currentTimeMillis() + refreshExpiration);
 
     return Jwts.builder()
-        .subject(userId)
+        .subject(String.valueOf(userId))
         .issuedAt(new Date())
         .expiration(expiryDate)
         .signWith(key)
