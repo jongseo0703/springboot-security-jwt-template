@@ -1,5 +1,8 @@
 package com.example.usertemplate.global.redis;
 
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,14 +12,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BlacklistTokenService {
 
-  private final BlacklistTokenRepository blacklistTokenRepository;
+  private final RedisTemplate<String, String> redisTemplate;
 
   @Transactional
   public void addToBlacklist(String accessToken, long ttlInSeconds) {
-    blacklistTokenRepository.save(new BlacklistToken(accessToken));
+    redisTemplate.opsForValue().set(accessToken, "blacklisted", ttlInSeconds, TimeUnit.SECONDS);
   }
 
   public boolean isBlacklisted(String accessToken) {
-    return blacklistTokenRepository.existsByAccessToken(accessToken);
+    return redisTemplate.hasKey(accessToken);
   }
 }
