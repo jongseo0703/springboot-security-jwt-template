@@ -98,36 +98,52 @@ public class AuthController {
       @RequestHeader("Authorization") final String accessToken) {
 
     String token = extractToken(accessToken);
-    // 액세스 토큰으로 Refresh 토큰 객체를 조회
-    Optional<RefreshToken> refreshToken = tokenRepository.findByAccessToken(token);
-
-    // RefreshToken이 존재하고 유효하다면 실행
-    if (refreshToken.isPresent()
-        && jwtTokenProvider.validateToken(refreshToken.get().getRefreshToken())) {
-      // RefreshToken 객체를 꺼내온다.
-      RefreshToken resultToken = refreshToken.get();
-      String userId = resultToken.getId();
-      User user =
-          userRepository
-              .findByEmail(userId)
-              .orElseThrow(() -> new BusinessException("User not found", 404, "USER_NOT_FOUND"));
-
-      UsernamePasswordAuthenticationToken authentication =
-          new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-
-      // 새로운 액세스토큰을 만든다.
-      String newAccessToken = jwtTokenProvider.generateAccessToken(authentication);
-      // 액세스 토큰의 값을 수정해준다.
-      resultToken.updateAccessToken(newAccessToken);
-      tokenRepository.save(resultToken);
-      // 새로운 액세스 토큰을 반환해준다.
-      return ResponseEntity.ok(
-          ApiResponse.success(
-              "Token refreshed", LoginResponse.of(newAccessToken, resultToken.getRefreshToken())));
+    if (token == null) {
+      throw new BusinessException("Invalid token", 401, "INVALID_TOKEN");
     }
 
-    return ResponseEntity.badRequest()
-        .body(ApiResponse.<LoginResponse>error("Invalid refresh token"));
+    // 1. 액세스 토큰으로 Refresh 토큰 객체를 조회
+    Optional<RefreshToken> refreshTokenOptional = tokenRepository.findByAccessToken(token);
+
+    if (refreshTokenOptional.isEmpty()) {
+      return ResponseEntity.badRequest()
+          .body(ApiResponse.error("Invalid or expired refresh token"));
+    }
+
+    RefreshToken oldRefreshToken = refreshTokenOptional.get();
+
+    // 2. RefreshToken의 유효성 검증
+    if (!jwtTokenProvider.validateToken(oldRefreshToken.getRefreshToken())) {
+      tokenRepository.delete(oldRefreshToken); // 만료된 토큰은 삭제
+      return ResponseEntity.badRequest()
+          .body(ApiResponse.error("Invalid or expired refresh token"));
+    }
+
+    // 3. 사용자 정보 조회
+    User user =
+        userRepository
+            .findByEmail(oldRefreshToken.getId())
+            .orElseThrow(() -> new BusinessException("User not found", 404, "USER_NOT_FOUND"));
+
+    // 4. 새로운 토큰 생성 (Access, Refresh 둘 다)
+    UsernamePasswordAuthenticationToken authentication =
+        new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+
+    String newAccessToken = jwtTokenProvider.generateAccessToken(authentication);
+    String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
+
+    // 5. 기존 Refresh Token 삭제 (Rotation)
+    tokenRepository.delete(oldRefreshToken);
+
+    // 6. 새로운 Refresh Token 저장
+    tokenService.saveTokenInfo(user.getEmail(), newRefreshToken, newAccessToken);
+
+    log.info("Token refreshed and rotated for user: {}", user.getUsername());
+
+    // 7. 새로운 토큰 반환
+    return ResponseEntity.ok(
+        ApiResponse.success(
+            "Token refreshed successfully", LoginResponse.of(newAccessToken, newRefreshToken)));
   }
 
   private String extractToken(String bearerToken) {
