@@ -9,11 +9,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.example.usertemplate.global.redis.BlacklistTokenService;
 import com.example.usertemplate.user.entity.User;
 import com.example.usertemplate.user.repository.UserRepository;
 
@@ -36,6 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtTokenProvider jwtTokenProvider;
   private final UserRepository userRepository;
+  private final BlacklistTokenService blacklistTokenService;
 
   @Override
   protected void doFilterInternal(
@@ -52,32 +55,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
       // 토큰이 존재하고 유효한 경우 인증 처리
       if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
-        log.debug("✅ JWT Filter - Token validation successful");
 
-        // 토큰에서 사용자 ID 추출
-        Long userId = jwtTokenProvider.getUserIdAsLongFromToken(jwt);
-        log.debug("🔍 JWT Filter - User ID extracted: {}", userId);
+        // 블랙리스트에 있는지 확인
+        if (blacklistTokenService.isBlacklisted(jwt)) {
+          log.warn("⚠️ This token is blacklisted and cannot be used.");
+        } else {
+          log.debug("✅ JWT Filter - Token validation successful");
 
-        // 사용자 ID로 사용자 상세 정보 로드
-        User user = userRepository.findById(userId).orElse(null);
-        assert user != null;
-        log.debug("✅ JWT Filter - User found: {}", user.getUsername());
+          // 토큰에서 사용자 ID 추출
+          Long userId = jwtTokenProvider.getUserIdAsLongFromToken(jwt);
+          log.debug("🔍 JWT Filter - User ID extracted: {}", userId);
 
-        // Spring Security 인증 객체 생성
-        UsernamePasswordAuthenticationToken authentication =
-            new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+          // 사용자 ID로 사용자 상세 정보 로드
+          User user =
+              userRepository
+                  .findById(userId)
+                  .orElseThrow(
+                      () -> new UsernameNotFoundException("User not found with id: " + userId));
 
-        // 요청 상세 정보 설정
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+          log.debug("✅ JWT Filter - User found: {}", user.getUsername());
 
-        // SecurityContext에 인증 정보 설정 (강화된 설정)
-        SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+          // Spring Security 인증 객체 생성
+          UsernamePasswordAuthenticationToken authentication =
+              new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 
-        log.debug("🔐 JWT authentication successful for user: {}", user.getUsername());
-        log.debug(
-            "🔐 SecurityContext set: {}",
-            SecurityContextHolder.getContext().getAuthentication().getName());
+          // 요청 상세 정보 설정
+          authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+          // SecurityContext에 인증 정보 설정 (강화된 설정)
+          SecurityContextHolder.getContext().setAuthentication(authentication);
+
+          log.debug("🔐 JWT authentication successful for user: {}", user.getUsername());
+          log.debug(
+              "🔐 SecurityContext set: {}",
+              SecurityContextHolder.getContext().getAuthentication().getName());
+        }
       }
     } catch (Exception ex) {
       log.error("Could not set user authentication in security context : {}", ex.getMessage());
