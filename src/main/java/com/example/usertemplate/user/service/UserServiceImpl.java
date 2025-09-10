@@ -80,4 +80,22 @@ public class UserServiceImpl implements UserService {
 
     log.info("User deleted successfully: {}", userId);
   }
+
+  @Override
+  @Transactional(readOnly = true)
+  public UserResponse getUserByEmail(String email) {
+    User user =
+        userRepository
+            .findByEmail(email)
+            .orElseThrow(() -> new BusinessException("User not found", 404, "USER_NOT_FOUND"));
+    return UserResponse.from(user);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public User findUserByEmail(String email) {
+    return userRepository
+        .findByEmail(email)
+        .orElseThrow(() -> new BusinessException("User not found", 404, "USER_NOT_FOUND"));
+  }
 }

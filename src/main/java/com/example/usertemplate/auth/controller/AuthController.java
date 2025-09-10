@@ -27,7 +27,7 @@ import com.example.usertemplate.global.common.ApiResponse;
 import com.example.usertemplate.global.exception.BusinessException;
 import com.example.usertemplate.user.dto.UserResponse;
 import com.example.usertemplate.user.entity.User;
-import com.example.usertemplate.user.repository.UserRepository;
+import com.example.usertemplate.user.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,7 +47,7 @@ public class AuthController {
   private final RefreshTokenService tokenService;
   private final BlacklistTokenService blacklistTokenService;
   private final JwtTokenProvider jwtTokenProvider;
-  private final UserRepository userRepository;
+  private final UserService userService;
 
   // 회원가입을 처리하는 매핑임.
   @Operation(summary = "Register user", description = "Register a new user")
@@ -79,7 +79,7 @@ public class AuthController {
   }
 
   @Operation(summary = "Logout", description = "User logout")
-  @PostMapping("token/logout")
+  @PostMapping("/logout")
   public ResponseEntity<ApiResponse<Void>> logout(
       @RequestHeader("Authorization") final String accessToken) {
 
@@ -96,7 +96,7 @@ public class AuthController {
   }
 
   @Operation(summary = "Refresh token", description = "Refresh access token")
-  @PostMapping("/token/refresh")
+  @PostMapping("/refresh")
   public ResponseEntity<ApiResponse<LoginResponse>> refresh(
       @RequestHeader("Authorization") final String accessToken) {
 
@@ -123,10 +123,7 @@ public class AuthController {
     }
 
     // 3. 사용자 정보 조회
-    User user =
-        userRepository
-            .findByEmail(oldRefreshToken.getId())
-            .orElseThrow(() -> new BusinessException("User not found", 404, "USER_NOT_FOUND"));
+    User user = userService.findUserByEmail(oldRefreshToken.getId());
 
     // 4. 새로운 토큰 생성 (Access, Refresh 둘 다)
     UsernamePasswordAuthenticationToken authentication =
