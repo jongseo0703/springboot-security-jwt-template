@@ -12,7 +12,7 @@ import com.example.usertemplate.auth.dto.LoginResponse;
 import com.example.usertemplate.auth.dto.RegisterRequest;
 import com.example.usertemplate.auth.security.JwtTokenProvider;
 import com.example.usertemplate.global.exception.BusinessException;
-import com.example.usertemplate.global.redis.RefreshTokenService;
+import com.example.usertemplate.auth.token.RefreshTokenService;
 import com.example.usertemplate.user.dto.UserResponse;
 import com.example.usertemplate.user.entity.Role;
 import com.example.usertemplate.user.entity.User;

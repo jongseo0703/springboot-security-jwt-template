@@ -1,5 +1,6 @@
-package com.example.usertemplate.global.redis;
+package com.example.usertemplate.global.config;
 
+import com.example.usertemplate.global.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

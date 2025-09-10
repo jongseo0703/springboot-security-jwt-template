@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.usertemplate.global.redis.BlacklistTokenService;
+import com.example.usertemplate.auth.token.BlacklistTokenService;
 import com.example.usertemplate.user.entity.User;
 import com.example.usertemplate.user.repository.UserRepository;
 
@@ -59,6 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 블랙리스트에 있는지 확인
         if (blacklistTokenService.isBlacklisted(jwt)) {
           log.warn("⚠️ This token is blacklisted and cannot be used.");
+          throw new BadCredentialsException("This token is blacklisted and cannot be used.");
         } else {
           log.debug("✅ JWT Filter - Token validation successful");
 

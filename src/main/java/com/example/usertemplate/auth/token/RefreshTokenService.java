@@ -1,4 +1,4 @@
-package com.example.usertemplate.global.redis;
+package com.example.usertemplate.auth.token;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

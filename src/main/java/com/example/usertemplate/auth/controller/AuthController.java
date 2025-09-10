@@ -2,6 +2,10 @@ package com.example.usertemplate.auth.controller;
 
 import java.util.Optional;
 
+import com.example.usertemplate.auth.token.BlacklistTokenService;
+import com.example.usertemplate.auth.token.RefreshToken;
+import com.example.usertemplate.auth.token.RefreshTokenRepository;
+import com.example.usertemplate.auth.token.RefreshTokenService;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -21,7 +25,6 @@ import com.example.usertemplate.auth.security.JwtTokenProvider;
 import com.example.usertemplate.auth.service.AuthService;
 import com.example.usertemplate.global.common.ApiResponse;
 import com.example.usertemplate.global.exception.BusinessException;
-import com.example.usertemplate.global.redis.*;
 import com.example.usertemplate.user.dto.UserResponse;
 import com.example.usertemplate.user.entity.User;
 import com.example.usertemplate.user.repository.UserRepository;

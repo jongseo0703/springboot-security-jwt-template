@@ -1,4 +1,4 @@
-package com.example.usertemplate.global.redis;
+package com.example.usertemplate.auth.token;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
