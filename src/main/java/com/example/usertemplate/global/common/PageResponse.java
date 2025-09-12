@@ -6,9 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * 페이징 처리된 데이터를 API 응답으로 반환하기 위한 클래스임.
- */
+/** 페이징 처리된 데이터를 API 응답으로 반환하기 위한 클래스임. */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
