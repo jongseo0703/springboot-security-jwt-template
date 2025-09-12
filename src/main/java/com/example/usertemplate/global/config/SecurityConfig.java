@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.usertemplate.auth.oauth.handler.OAuth2AuthenticationSuccessHandler;
 import com.example.usertemplate.auth.security.JwtAccessDeniedHandler;
 import com.example.usertemplate.auth.security.JwtAuthenticationEntryPoint;
 import com.example.usertemplate.auth.security.JwtAuthenticationFilter;
@@ -28,6 +29,7 @@ public class SecurityConfig {
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
   private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+  private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
   // BCrypt방식을 사용하는 PasswordEncoder 등록
   @Bean
@@ -60,6 +62,10 @@ public class SecurityConfig {
                     .requestMatchers("/actuator/**")
                     .permitAll()
 
+                    // OAuth 엔드포인트
+                    .requestMatchers("/oauth2/**", "/login/oauth2/**")
+                    .permitAll()
+
                     // Swagger/OpenAPI 문서
                     .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                     .permitAll()
@@ -71,6 +77,11 @@ public class SecurityConfig {
                     // 나머지는 인증 필요
                     .anyRequest()
                     .authenticated())
+        .oauth2Login(
+            oauth2 ->
+                oauth2
+                    .successHandler(oAuth2AuthenticationSuccessHandler)
+                    .failureUrl("/api/v1/auth/oauth/failure?error=true"))
         .exceptionHandling(
             exceptions ->
                 exceptions
