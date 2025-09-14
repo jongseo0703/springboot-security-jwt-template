@@ -4,6 +4,7 @@ import lombok.Builder;
 
 /**
  * OAuth 사용자의 정보를 전달하는 DTO
+ *
  * @param oauthId
  * @param email
  * @param name
