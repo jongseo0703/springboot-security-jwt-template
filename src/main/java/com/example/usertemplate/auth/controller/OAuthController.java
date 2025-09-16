@@ -32,6 +32,7 @@ public class OAuthController {
 
   private final OAuthService oAuthService;
 
+  // provider로 naver, google, kakao중 선택해서 연동하는 매핑
   @Operation(
       summary = "OAuth login redirect",
       description = "Redirect to OAuth provider for authentication")
